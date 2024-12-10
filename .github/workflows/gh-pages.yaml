@@ -1,0 +1,67 @@
+name: github pages
+
+on:
+  push:
+    branches:
+      - main  # Set a branch to deploy
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+
+    steps:
+      - name: Checkout yueleshia/tetra
+        run: |-
+          printf %s\\n "" "=== Fetch yueleshia/tetra ===" >&2
+          git init "${{ github.workspace }}/tetra" || exit "$?"
+          git -C "${{ github.workspace }}/tetra" remote add origin "https://github.com/yueleshia/tetra" || exit "$?"
+          git -C "${{ github.workspace }}/tetra" fetch --depth 1 origin refs/heads/main || exit "$?"
+          git -C "${{ github.workspace }}/tetra" switch --detach FETCH_HEAD || exit "$?"
+
+
+      - name: Setup Zig
+        uses: mlugg/setup-zig@v1
+        with:
+          version: 0.13.0
+          mirror:  https://zig.linus.dev/zig
+
+      - name: Build tetra
+        run:  |-
+          cd "${{ github.workspace }}/tetra" || exit "$?"
+          zig build --summary new --prefix "${{ github.workspace }}" || exit "$?"
+
+      - name: Checkout ${{ github.repository }}
+        run: |-
+          printf %s\\n "" "=== Fetch ${{ github.repository }} ===" >&2
+          git init "${{ github.workspace }}/repo" || exit "$?"
+          git -C "${{ github.workspace }}/repo" remote add origin "https://github.com/${{ github.repository }}" || exit "$?"
+          git -C "${{ github.workspace }}/repo" fetch --depth 1 origin refs/heads/main || exit "$?"
+          git -C "${{ github.workspace }}/repo" switch --detach FETCH_HEAD || exit "$?"
+
+      - name: Install dependencies
+        run:  |-
+          sudo apt install -y asciidoctor sassc cmark-gfm
+
+      - name: Build site
+        env:
+          SITE_DOMAIN: "/${{ github.event.repository.name }}"
+        run:  |-
+          export PATH="${PATH}:${{ github.workspace }}/bin"
+
+          cd "${{ github.workspace }}/repo" || exit "$?"
+          go run make.go -- host || exit "$?"
+
+      # Upload artifact that is named 1. github-pages 2. is zip of a single tar
+      - name: Upload static files as artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "${{ github.workspace }}/repo/public"
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
+

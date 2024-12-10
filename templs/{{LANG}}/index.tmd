@@ -1,0 +1,25 @@
+`@*`<!DOCTYPE html>
+`#run: SITE_ROOT="$( git rev-parse --show-toplevel )" SITE_DOMAIN="${SITE_ROOT}/public" SITE_ENDPOINT="${SITE_DOMAIN}/en/index.html" tetra parse %`
+`#run: SITE_ROOT="$( git rev-parse --show-toplevel )" SITE_DOMAIN="${SITE_ROOT}/public" SITE_SRC_PATH="${PWD}/%" tetra parse %`
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Words and Semicolons</title>
+  <script type="text/javascript"></script>
+  <script type="text/javascript" src="`$sh printf %s "${SITE_DOMAIN}" $`/app.js"></script>
+  <link rel="stylesheet" href="`$sh printf %s "${SITE_DOMAIN}" $`/style.css">
+
+</head>
+
+<body><div  class="structure-blog">
+  <header>
+`$sh "$SITE_ROOT/templs/navbar.sh" "${SITE_DOMAIN}" en "${SITE_ENDPOINT}" $`
+  </header>
+  <main>
+    <p>This is a work in progress.</p>
+  </main>
+</div>
+</body>
+</html>

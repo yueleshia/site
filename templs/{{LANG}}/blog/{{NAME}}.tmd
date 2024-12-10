@@ -1,0 +1,32 @@
+`@*`<!DOCTYPE html>
+`#run: SITE_ROOT="$( git rev-parse --show-toplevel )" SITE_DOMAIN="${SITE_ROOT}/public" SITE_LANGUAGE="en" SITE_SRC_PATH="${SITE_ROOT}/source/{{LANG}}/blog/terraform-introduction.md" SITE_ENDPOINT="/blog/post.html" tetra parse %`
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Words and Semicolons</title>
+  <script type="text/javascript"></script>
+  <script type="text/javascript" src="`$sh printf %s "${SITE_DOMAIN}" $`/app.js"></script>
+  <link rel="stylesheet" href="`$sh printf %s "${SITE_DOMAIN}" $`/style.css">
+
+</head>
+
+<body><div  class="structure-blog">
+  <header>
+`$sh "$SITE_ROOT/templs/navbar.sh" "${SITE_DOMAIN}" "${SITE_LANGUAGE}" "${SITE_ENDPOINT}" $`
+  </header>
+  <main>
+`$sh tetra parse "${SITE_SRC_PATH}" | cmark-gfm --extension footnotes
+#tetra parse "${SITE_SRC_PATH}" | asciidoctor - --out-file - \
+#  --attribute toc --attribute toc-title="" \
+#  --no-header-footer \
+#  #--attribute source-highlighter='pygments' \
+#  #--attribute 'webfonts!' \
+#  #--attribute imagesdir="${1}/images" \
+## end
+$`
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="refresh" content="0; url='`$sh printf %s "${SITE_DOMAIN}" $`/en/'" />
+  </head>
+  <body>
+    <p>Redirecting you to the english version.</p>
+  </body>
+</html>

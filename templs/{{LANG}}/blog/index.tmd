@@ -1,0 +1,42 @@
+`@*`<!DOCTYPE html>
+`#run: SITE_DOMAIN="" tetra parse %`
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Words and Semicolons</title>
+  <script type="text/javascript"></script>
+  <script type="text/javascript" src="`$sh printf %s "${SITE_DOMAIN}" $`/app.js"></script>
+  <link rel="stylesheet" href="`$sh printf %s "${SITE_DOMAIN}" $`/style.css">
+
+</head>
+
+<body><div  class="structure-blog">
+  <header>
+`$sh "$SITE_ROOT/templs/navbar.sh" "${SITE_DOMAIN}" "${SITE_LANGUAGE}" "${SITE_ENDPOINT}" $`
+  </header>
+  <main>
+`|sh *`
+prefix='    '
+root="$( git rev-parse --show-toplevel )" || exit "$?"
+cd "${root}/source" || exit "$?"
+
+for f in "{{LANG}}/blog/"*; do
+  frontmatter="$( tetra markup "${f}" | awk -v RS='\x1E' -v FS='\x1F' 'NR == 1 { print $4; }' )"
+  title="$( printf %s\\n "${frontmatter}" | awk -v FS=':' '$1 == "title" { print $2 }' )"
+  date="$(  printf %s\\n "${frontmatter}" | awk -v FS=':' '$1 == "date"  { print $2 }' )"
+  langs="$( printf %s\\n "${frontmatter}" | awk -v FS=':' '$1 == "langs" { print $2 }' )"
+
+  printf %s "${prefix}<li>${date} ${title}"
+  for tag in ${langs}; do
+    endpoint="$( printf %s\\n "${f}" | sed -e "s/{{LANG}}/${tag}/g" -e 's|\..*$||' )"
+    printf %s " [<a href=\"${SITE_DOMAIN}/${endpoint}\">${tag}</a>]"
+  done
+  printf %s\\n "</li>"
+done
+`@*`
+  </main>
+</div>
+</body>
+<html>
